@@ -55,7 +55,9 @@ Each task needs a 1–3 word title and a spec containing the following, at a dep
 - **Checks:** the tests, build, consumer checks and visual/interaction evidence that prove the outcome; include the enforcing command and rejection case for each new mechanical guard, and distinguish compiler coverage from legacy compatibility. Note anything not yet verifiable.
 - **Decisions:** approval already given, unresolved owner choices, and any material scope or structural decision still required.
 
-Desk text is Markdown. It reaches `wb` with real newlines through a heredoc, and a picture shows inline as `![caption](/media/<project>/<sha256 of its bytes>.<ext>)`, the same file attached to its card with `wb attach … --image`.
+Write the spec for the card: one short lead paragraph with the outcome, then `## Change`, `## Files` and `## Checks` (and `## Rules` or `## Decisions` where the task has them); one idea per paragraph and none over 400 characters; lists for steps; tables for consumers and comparisons; every symbol, command, flag and constant in a code span, while a file's absolute path stays bare so it can be clicked; and an `architecture` fence listing the Target component ids the spec names. `wb add` and `wb amend` refuse a spec outside this shape and name the fix: shorten and structure it, never split a to-do only to fit. Notes, done summaries and asks take the same shape.
+
+That shape is the policy's Desk rule 7. Its Markdown reaches `wb` with real newlines through a heredoc, and a picture shows inline as `![caption](/media/<project>/<sha256 of its bytes>.<ext>)`, the same file attached to its card with `wb attach … --image`.
 
 Use `wb add <project> "<title>" "<spec>"`, with `--for` and `--after` as the policy's Desk rule 2 says. Split work when pieces have distinct outcomes or dependencies; do not inflate a small request into a new project or checkpoint. When no existing checkpoint fits, ask the owner on the desk instead of manufacturing a milestone.
 

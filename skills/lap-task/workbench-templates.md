@@ -4,23 +4,36 @@ Use these shapes when establishing or reconciling tracked work. Keep small tasks
 
 ## Task specification
 
-```markdown
-Outcome: {observable result, delivery context and acceptance boundary}
+````markdown
+{One short lead paragraph: the observable outcome, its delivery context and acceptance boundary.}
 
-Owner/source: {implementing owner; canonical repository/checkout; architecture component IDs}
-Approach: {verified existing mechanisms, affected consumers and behavior to preserve}
-Rules/decisions: {relevant rule-source links; applicable owner decisions; unresolved choices}
+## Change
 
-Readiness: {local prerequisites; external project/task references and required capability}
-Can proceed now: {independent research, fixtures, authoring or implementation}
-Next gate: {specific artifact, decision or result needed; who supplies it}
+- {The approach: verified existing mechanisms, affected consumers and behavior to preserve.}
+- {What can proceed now: independent research, fixtures, authoring or implementation.}
 
-Acceptance:
-- {concrete input/action → observable output; relevant reset/exit case}
-- {consumer compatibility or regression case that matters}
+## Files
 
-Evidence/review: {required check or demonstration; current artifact/run reference; review scope}
+- {The implementing owner and canonical repository/checkout; the files and consumers it touches, relative paths in code spans and absolute paths bare.}
+
+## Rules
+
+- {Only where the task has them: relevant rule-source links and applicable owner decisions.}
+
+## Decisions
+
+- {Only where the task has them: unresolved choices; readiness (local prerequisites, external project/task references and required capability); the next gate (the artifact, decision or result needed, and who supplies it).}
+
+## Checks
+
+- {Concrete input/action → observable output; the relevant reset/exit case.}
+- {A consumer compatibility or regression case that matters.}
+- {The required check or demonstration, current artifact/run reference, and review scope.}
+
+```architecture
+{the Target component ids the spec names}
 ```
+````
 
 Do not turn every task into a full project specification. A short correction may need one paragraph and one verification step. Separate tasks when outcomes have different owners, execution contexts or real dependencies. Before splitting, inspect existing integration tasks and checkpoint contracts; preserve every agreed deliverable and record its new home without duplicating it. Reuse existing IDs; an amendment preserves earlier scope in history. Read accepted/source-owned records before changing anything that depends on them.
 
