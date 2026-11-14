@@ -1,6 +1,6 @@
 interface:
   display_name: "lap.task"
-  short_description: "Research, approve, execute, and review tracked tasks"
-  default_prompt: "Use $lap-task to create or resume a tracked task for this work."
+  short_description: "Establish Workbench tasks with rules and architecture"
+  default_prompt: "Use $lap-task to establish this work on the desk with its applicable rules, architecture, dependencies and acceptance checks."
 policy:
   allow_implicit_invocation: false

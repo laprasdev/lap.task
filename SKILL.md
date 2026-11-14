@@ -1,14 +1,14 @@
 ---
 name: lap.task
-description: Create or resume a task with research, owner signoff, an approved definition, and a progress journal. Invoke explicitly for work you want tracked through review.
-argument-hint: "<task-name or task-directory>"
+description: Create or resume a Workbench task with the applicable rules, research, target architecture, dependencies and acceptance checks. Invoke explicitly to establish tracked work.
+argument-hint: "<task request or existing task ID>"
 disable-model-invocation: true
 user-invocable: true
 ---
 
 # lap.task
 
-Read [the task workflow](skills/lap-task/SKILL.md) and follow it for the user's request. Resolve that workflow's template links relative to its own directory.
+Read [the task workflow](skills/lap-task/SKILL.md) and follow it for the user's request. Resolve its supporting links relative to that workflow's directory.
 
 Task request: $ARGUMENTS
 

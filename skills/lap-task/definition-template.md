@@ -1,5 +1,15 @@
 # {Task Name}
 
+Workbench project: {project ID} · Task: {task ID}
+
+## Applicable Rules
+
+Record the rule source paths and requirements relevant to this task.
+
+## Target Architecture
+
+Name the desk architecture components this task builds or changes.
+
 ## Goal
 
 One sentence describing the intended outcome.
@@ -26,9 +36,9 @@ Name the actual symbols or files and explain how they cover this task.
 | --- | --- | --- |
 | {consumer} | {change} | {evidence} |
 
-## Approved Approach
+## Approach — {actual approval status}
 
-Record the chosen approach, alternatives considered, and reasons.
+Record the proposed or approved approach, alternatives considered, and reasons. Reference actual approval when present; the heading does not establish approval.
 
 ### Files to Change
 

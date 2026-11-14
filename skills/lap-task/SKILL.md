@@ -1,6 +1,6 @@
 ---
 name: lap-task
-description: Create, resume, and track a coding task through research, owner signoff, implementation, and review, with an approved definition and an append-only progress journal.
+description: Create or resume a Workbench task using the project's rules, researched scope, target architecture, dependencies and acceptance checks. Invoke explicitly to establish tracked work and guide its implementation and review.
 license: MIT
 metadata:
   display-name: lap.task
@@ -8,62 +8,69 @@ metadata:
 
 # lap.task
 
-Use this workflow when the user explicitly requests a tracked task. The user's request, project instructions, and host permissions determine its scope. Invoking the skill does not authorize unrelated work or grant additional permissions.
+Establish the requested work in the Workbench pattern. The result is an actionable desk task, or a small set of related tasks, with the considerations needed to build and review it. Follow the user's requested extent: creating or planning a task does not by itself request implementation; a request to implement continues through the authorized work after setup.
 
-## Locate the task
+Workbench owns task state, claims, dependencies, questions, review evidence and handoff context. Use the existing desk and project rules rather than creating another task system. This skill grants no additional tool permissions or publishing authority.
 
-Read the applicable `AGENTS.md`, `CLAUDE.md`, and relevant guides they reference. Reuse the project's task location and naming convention. Look for existing `definition.md` and `progress.md` pairs within the project before creating anything.
+## Find the project and its rules
 
-If the project has no task convention, use `docs/tasks/{task-name}.MM_DD_YY/`, with the current local date. Keep the task name to one directory component. If multiple existing tasks match, ask which one to resume. If a matching directory is missing one of its documents, report the incomplete task instead of overwriting or silently recreating it.
+Read the shared policy, `/Users/lap/Development/agent-rules/AGENTS.md`, plus the applicable repository and nested `AGENTS.md`/`CLAUDE.md` files. Follow their references relevant to the files and consumers involved. Record the source paths and the requirements that affect this task in its spec. Keep rules in their owning files; do not copy an entire rule system into each task or silently relax it. Language limits, engine mechanisms, review roles and release procedures apply in their declared scope. If applicable rules conflict materially, identify their sources and resolve the conflict with the owner before dependent work.
 
-For a new task, follow Research through Review below. For an existing task, follow Resume.
+Use `wb`, or the Workbench checkout's `bin/wb.mjs` through Node when `wb` is not on PATH. On the owner's Mac the fallback is `node /Users/lap/Development/workbench/bin/wb.mjs`. Reuse an existing `WB_AGENT`, otherwise set it once to identify the client and task. Respect an existing `WORKBENCH_URL`.
 
-## Research
+Run `wb projects`, then `wb next <project>`. Match the request and repository to the registered project; one repository can serve several desk projects. Read existing task specs, notes, owner answers, claims and the checkpoint path before adding anything. The agent endpoint `GET /api/agent/next/<project>` supplies readiness and task descriptions, but not agent-written note history. For a task's full record, read `GET /api/projects` on the configured desk and follow each same-origin `next` URL until it is null. Use the same authenticated connection for every page; never print its credential. The Workbench checkout's `projectCollection.ts` exports `collectProjects` for this contract. From the combined `projects`, select the matching project and exact item ID in `items.todo`, `items.feedback`, `items.ask` or `items.checkpoints`, and read the relevant `status.log` entries plus `reply`. Use these records for reviewer findings, handoff evidence and owner context before resuming; do not assume the readiness brief contains them. Ask only if the project or task remains ambiguous. If the project is unregistered or the desk is unavailable, report the specific connection or registration gap and continue independent research; do not claim integration succeeded or silently create a file-based replacement.
 
-Research before changing implementation code.
+For existing work, reuse its task ID and history. Do not duplicate tasks, take another session's claim, reopen accepted work, or infer owner approval from a status or silence. Read any project-required task documents too; see [Existing task documents](existing-documents.md).
 
-1. Search related concepts, symbols, callers, and tests. Start from the assumption that useful patterns already exist.
-2. Trace the relevant data flow and call sites. Identify reusable abstractions and their consumers.
-3. For shared changes, list the behavior change for every affected consumer. Narrow the proposal where impact is unverified.
-4. Identify duplicate or unused code, but verify its consumers and ownership before proposing removal. Preserve intentionally retained capability.
-5. Answer: can composition of existing pieces solve this; can configuration or validation express the behavior; does an existing pattern already cover the need?
+## Research the work
 
-## Proposal and signoff
+Audit enforcement as well as prose. Find the active language/migration policy, compiler inclusion and strictness, local check commands, CI invocations and page/component ownership checks. For each applicable mechanical rule, record its canonical source, enforcing command and an observed rejection case; identify missing gates as work rather than describing them as enforced. Follow references to prior owner-approved migration decisions even when the entry document is stale. Verify the current client actually loads the shared policy.
 
-Present the outcome, alternatives with tradeoffs, affected files, anticipated additions/deletions, verification, and any unresolved questions. Aim for three meaningful approaches; explain when fewer are credible instead of inventing filler.
+Before implementation, run the shared policy's search and consumer audit over related symbols, patterns, callers, data flow and tests, and record the owners and consumers you found in the spec. Hold the proposed change to the policy and the repository's rules. Present alternatives only when a real tradeoff needs the owner's decision; two mechanisms for one job are a defect to collapse, not alternatives, and do not manufacture a fixed number of approaches.
 
-Prefer extending existing mechanisms and reducing duplication. Estimate the net code change and justify growth when it is necessary.
+## Establish the architecture maps
 
-Wait for the owner's explicit approval of the proposed scope before implementation. If the owner has already approved that same concrete scope in the conversation, record that approval and continue without asking again. A skill invocation alone does not approve an as-yet-unspecified plan.
+Read `wb architecture <project> --snapshot current` and verify the existing code before implementation: relevant components, classes/methods and functions, locations, dependencies and states. Save with `wb architecture <project> <file.json> --snapshot current`, retaining Current's own revision. Current accepts only verified `present` symbols or real `stubbed` skeletons. Its first save fixes Start once with its author/date. Start is the first recorded baseline, not invented project-begin history; it cannot be edited. Do not copy planned Target symbols into Current or claim a historical baseline when none was captured.
 
-## Create the documents
+Read `wb architecture <project>` for Target. Before implementation, declare or reconcile the intended components, relevant classes/methods and functions, source locations and component dependencies. Use the Workbench checkout's `architecture.example.json` for the current format.
 
-After signoff, create both documents using the supplied templates:
+- `planned`: intended, not yet implemented.
+- `stubbed`: an actual code skeleton exists.
+- `present`: the named implementation has been checked in the code.
 
-- [definition-template.md](definition-template.md) becomes `definition.md`, the approved baseline.
-- [progress-template.md](progress-template.md) becomes `progress.md`, the working journal. Set its status to `IN PROGRESS`.
+Map first; create code skeletons only when the task needs them. Keep class/function names expressive and responsibilities abstract. The Architecture section compares Start → Current → Target, with independently hideable columns; hiding Current does not change the Target comparison base. Keep the map high-level and connect the task spec to the components it builds. Preserve unrelated components and their stable IDs. Read the current map to a temporary JSON file, retain its `revision`, and save with `wb architecture <project> <file.json>`. On a stale-write refusal, reread and reconcile; never overwrite a newer map. A declaration is neither implementation evidence nor owner approval.
 
-Fill in the actual goal, acceptance cases, research, approach, affected files, and task-specific deliverables. Record the scope the owner approved. Never invent an approval or mark research checks that were not performed.
+## Create the desk task
 
-Treat `definition.md` as fixed unless the owner explicitly approves a particular amendment. Record the reason and approval in `progress.md` before making an approved amendment. Ordinary discoveries, blockers, and pivots belong in `progress.md`. This is a workflow rule, not a filesystem lock.
+Use [Workbench templates](workbench-templates.md) when a task needs a reusable specification, cross-project handoff, run/evidence record or review submission. Adapt the depth to the task; the examples do not add permissions, reviewer substitutions or universal execution requirements.
 
-## Execute
+Follow the project's planning/reviewer arrangement. Where the shared rules assign checkpoint planning to Fable's reviewer, obtain that gameplan and have the reviewer record the task specs. Respect the configured fallback if the reviewer is unavailable, and report any remaining review blocker honestly. Do not invent a reviewer verdict or spend credits to bypass a limit. If required planning review cannot run, record the researched scope on the desk as awaiting that review and keep dependent implementation pending.
 
-- Work within the approved scope and the host's current tool permissions. Follow the repository's architecture, naming, logging, and size limits; do not import another project's limits.
-- Search before creating a parallel mechanism. Keep each piece responsible for one concern and preserve unrelated changes.
-- Append dated accomplishments, blockers, resolutions, and pivots at meaningful milestones. Preserve previous journal entries and checklist items; update status and checkboxes as facts change.
-- For a material change to the approved approach or scope, explain the impact and obtain approval. Do not quietly rewrite the baseline to match the implementation.
-- Run checks appropriate to the change. Record commands, real results, and limits. Do not hide invalid state with silent fallbacks or weaken checks to make them pass.
-- If access, authentication, or sandbox restrictions prevent an action, report the exact blocker. Approval of a plan does not override those restrictions.
+Each task needs a 1–3 word title and a spec containing the following, at a depth proportionate to the change:
 
-## Review
+- **Outcome and scope:** observable behavior, acceptance cases, and behavior to preserve.
+- **Rules:** applicable source paths, the requirements relevant here, and any owner-approved exceptions.
+- **Approach and ownership:** verified symbols, files, architecture components, reusable mechanisms, and affected consumers with expected changes.
+- **Dependencies:** what must finish first and which existing checkpoint the task feeds, when one fits.
+- **Checks:** the tests, build, consumer checks and visual/interaction evidence that prove the outcome; include the enforcing command and rejection case for each new mechanical guard, and distinguish compiler coverage from legacy compatibility. Note anything not yet verifiable.
+- **Decisions:** approval already given, unresolved owner choices, and any material scope or structural decision still required.
 
-Work through the task-specific deliverables and progress checklist. Mark only the items supported by evidence. Report what changed, checks and results, net code change, and outstanding concerns.
+Desk text is Markdown. It reaches `wb` with real newlines through a heredoc, and a picture shows inline as `![caption](/media/<project>/<sha256 of its bytes>.<ext>)`, the same file attached to its card with `wb attach … --image`.
 
-Set status to `AWAITING REVIEW`. Only the owner confirms completion. After explicit confirmation, record that confirmation and set `COMPLETE`; never infer acceptance from silence or passing tests.
+Use `wb add <project> "<title>" "<spec>"`, with `--for` and `--after` as the policy's Desk rule 2 says. Split work when pieces have distinct outcomes or dependencies; do not inflate a small request into a new project or checkpoint. When no existing checkpoint fits, ask the owner on the desk instead of manufacturing a milestone.
 
-## Resume
+Amend an unfinished task with `wb amend <project> <id> "<title>" "<spec>"` only within the current agent's authority, preserving its history and approved scope. Do not rewrite a baseline to conceal a changed outcome. Add research, evidence and handoff context with `wb note <project> <id> "<text>"`.
 
-Read the existing definition and progress before changing anything. Report the last status, approved scope, accomplishments, and unresolved blockers. Continue with the user's requested next step when it is clear and authorized; ask where to resume only when it is unclear.
+Put unresolved owner decisions on the desk with `wb ask <project> "<question>" "<context>"`, and reference the ask from the task. Make the result concrete before seeking required approval.
 
-If status is `AWAITING SIGNOFF` or `AWAITING REVIEW`, preserve that gate unless the owner has supplied the corresponding approval. For a completed task, obtain direction before reopening it or changing its scope.
+Finish setup by reporting the project and task IDs, checkpoint/dependency links, architecture status, and the next ready step or pending decision. A planning-only request ends here with the work established on the desk.
+
+## Build, review and resume
+
+When implementation is requested and authorized, take ready work first and run `wb claim <project> <id>` before starting. If refused, respect the existing owner; continue another authorized ready task or report the conflict. Keep task notes current at meaningful milestones, including discoveries, blockers, decisions and checks with actual results. Re-read current state when resuming; the desk holds what the next session needs.
+
+At closeout, before review and `wb done`, refresh Current against the actual code and reconcile Target: verify symbols, locations, dependencies and states, keeping unfinished target pieces `planned`. Retain each snapshot's own revision and leave Start untouched. Run the relevant acceptance checks and record evidence and limits. For visible changes, inspect the real layouts and interactions required by the project's design rules.
+
+Run the policy's review loop (Desk and review); only after its approval, submit `wb done <project> <id> "<summary, checks, review rounds and verdict>"`. If review cannot run, leave an accurate note and report the pending review rather than marking it passed.
+
+For an accepted/completed task, obtain direction before reopening or widening its scope. For an awaiting-review task, preserve its state and work only on authorized revisions.

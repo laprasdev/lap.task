@@ -1,8 +1,13 @@
 # {Task Name} — Progress
 
-## Status: NOT STARTED
+Workbench project: {project ID} · Task: {task ID}
+
+<!-- Workbench owns live status and approvals; this document preserves detailed evidence. -->
+
+## Status: {current desk status}
 
 <!-- NOT STARTED | RESEARCHING | AWAITING SIGNOFF | IN PROGRESS | BLOCKED | AWAITING REVIEW | COMPLETE -->
+<!-- Initialize from the existing desk record. Finished work awaiting owner review is not owner-approved. -->
 <!-- Status and checkboxes can change. Preserve journal entries and checklist items. -->
 
 ## Checklist

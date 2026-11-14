@@ -1,58 +1,55 @@
 # lap.task
 
-A small, cloneable task workflow for Claude Code: research, owner signoff, implementation, and review. Each task has an approved `definition.md` and a `progress.md` journal that preserves its history.
+Create or resume a Workbench task using the project's rules, researched scope, target architecture, dependencies and acceptance checks. The command establishes the work on the desk, then guides implementation and review when requested.
 
-`lap.task` is the first name in the `lap.*` family. This repository contains the skill, templates, and an optional local reminder hook. It needs no server, Workbench instance, subscription of its own, or API key. Claude Code uses the account already signed in on each machine.
+The rules stay in their shared, repository and nested instruction files. Each task records which requirements apply and how its result will be verified. Workbench owns status, claims, questions, dependencies, review evidence and handoffs. Existing project-required definition/progress documents remain supported; new tasks do not create them by default.
 
-## Install on another machine
+## Use
 
-Install Git and Claude Code, then clone this repository into your personal skills directory:
+In Claude Code:
+
+```text
+/lap.task establish the graph shaping work
+/lap.task resume todo:example
+```
+
+In Codex:
+
+```text
+$lap-task establish the graph shaping work
+$lap-task implement the ready task we just planned
+```
+
+Setup resolves the registered desk project, reuses existing work where appropriate, reads the applicable rules and consumers, reconciles the target architecture, and records a task spec with real dependencies and acceptance checks. The result includes the project/task IDs and the next ready step or pending owner decision. Planning alone does not start implementation. Existing approval carries forward; required owner decisions and reviewer approvals are never fabricated.
+
+The current project needs access to its Workbench desk and CLI. The workflow uses `wb`, with a Node fallback to the Workbench checkout's `bin/wb.mjs`. The CLI honors `WORKBENCH_URL`; retain the configured desk endpoint. If the desk or project is unavailable, the agent reports that gap and may continue independent research, but does not silently create a competing task system.
+
+## Install across projects
+
+Clone into your personal Claude skills directory:
 
 ```sh
 git clone https://github.com/laprasdev/lap.task.git ~/.claude/skills/lap.task
 ```
 
-If you set `CLAUDE_CONFIG_DIR`, use its `skills/lap.task` directory instead. Git refuses to overwrite an existing destination; inspect or update an existing installation rather than deleting it.
+If you set `CLAUDE_CONFIG_DIR`, use its `skills/lap.task` directory instead. Inspect an existing installation rather than overwriting it. Start a fresh Claude session if `/lap.task` is not listed.
 
-Start a fresh Claude Code session in the project you want to work on, then enter:
-
-```text
-/lap.task improve-search
-```
-
-Claude researches the project and presents a proposal. After you approve the scope, it creates the task documents and carries out the work. It follows that project's task directory convention; without one, documents go under `docs/tasks/`. To resume, invoke `/lap.task` with the task name or its directory.
-
-The skill is available across projects for that OS account. Installing it on a second machine installs the workflow, not your conversations, task journals, or approvals. To continue the same task elsewhere, commit the task documents in the project repository and clone or pull that project too. Each machine needs its own account access and permissions.
-
-Update the skill deliberately:
+The reusable workflow is `skills/lap-task`; the root `SKILL.md` is only the Claude command adapter. To make the same maintained source available to Codex across projects, link it into the personal skills directory:
 
 ```sh
-git -C ~/.claude/skills/lap.task pull --ff-only
+mkdir -p ~/.agents/skills
+ln -s ~/.claude/skills/lap.task/skills/lap-task ~/.agents/skills/lap-task
 ```
 
-To remove it, move the `lap.task` directory outside the skills directory and start a new Claude session. If you enabled the optional hook below, remove that hook entry too.
+Use the actual clone location if different. The command refuses an existing destination; inspect that destination rather than replacing it. Codex supports symlinked skill directories. The skill remains explicit-only and is invoked as `$lap-task`. Codex detects skill changes automatically; restart it if discovery has not refreshed. See the [official OpenAI skills documentation](https://learn.chatgpt.com/docs/build-skills).
 
-## Permissions
+Update the clone deliberately with `git -C ~/.claude/skills/lap.task pull --ff-only`, resolving local edits first. The symlink keeps both clients on the same workflow. Installation on another machine requires the updated package, that machine's project rules and Workbench access; it does not copy conversations, credentials or owner approvals.
 
-There are separate decisions:
+## Existing task documents
 
-| Decision | Who controls it |
-| --- | --- |
-| Read a public copy of this repository | GitHub permits public cloning; no write access is needed. |
-| Install this skill locally | The OS account running the clone must be able to write its own skills directory. |
-| Approve a task's implementation scope | You, in the Claude conversation. |
-| Read/write project files or run commands | Claude Code's permissions, working directories, sandbox, managed policies, and your OS account. |
-| Push project changes, publish, or deploy | That machine's authenticated account and any required action approval. |
+Projects such as Bloom may still require an approved `definition.md` and a historical `progress.md`. The workflow's [existing-document guidance](skills/lap-task/existing-documents.md) preserves that requirement and links the documents to the desk task. Workbench remains the source of current state and handoff context.
 
-This skill does not set `allowed-tools`, add permission rules, enable a bypass mode, change sandbox settings, or install credentials. It is explicit-only: Claude loads it when you invoke it. Inspect or adjust the current host permissions with `/permissions`; approving the plan does not override them. A permission granted on your machine is not transferred by cloning this repo.
-
-The definition approval rule is an instruction to the agent, not an OS-level file lock. The optional hook supplies a reminder; it cannot verify a conversation's approval or enforce every possible way of editing a file.
-
-## Optional definition reminder
-
-The workflow works without a hook or Python. To retain a reminder before Claude's `Edit` or `Write` tool changes an existing task definition, Python 3 must be available and you must explicitly install the hook.
-
-Review `hooks/definition-reminder.py`, then merge this entry into the `hooks.PreToolUse` array in your Claude settings. Preserve any existing settings and hooks. Replace the command's path with the absolute path to your clone on that machine:
+The optional `hooks/definition-reminder.py` supplies context before Claude's Edit/Write tools change an existing task definition beside a progress file. It is retained for those projects, is not enabled by installation, and neither verifies approval nor locks files. To enable it deliberately, merge the following entry into `hooks.PreToolUse` in your Claude settings, preserving existing entries and using the actual clone path:
 
 ```json
 {
@@ -66,16 +63,8 @@ Review `hooks/definition-reminder.py`, then merge this entry into the `hooks.Pre
 }
 ```
 
-The script reads hook input, checks for an existing `definition.md` beside `progress.md`, and emits context. It writes no files, makes no network requests, and issues no permission decision. Hooks execute as local programs under your OS account; they are separate from the model's normal tool approval flow. Enabling this hook is optional and cloning alone does not enable it.
+## Permissions and origin
 
-## Using the same workflow in Codex
+The skill grants no file, network, publishing or approval authority. The owner controls scope and acceptance; the project configures planning/review roles; the host controls tool permissions. It never answers owner calls or edits `answers.json`. Cloning does not change sandbox settings or enable hooks.
 
-The shared workflow is a standard skill at `skills/lap-task`. Install that directory through Codex's skill installer or copy it into `~/.agents/skills/lap-task`, then invoke `$lap-task`. Its display name is `lap.task`; the portable skill identifier uses hyphens. The Claude adapter at the repository root supplies the `/lap.task` command without duplicating the workflow.
-
-## Origin and behavior
-
-Adapted from BloomGameClient's `.claude/skills/task` workflow under the MIT license. The export keeps research, signoff, task documents, historical progress, and owner-confirmed completion. It replaces Bloom-specific file paths, logging APIs, and language limits with the current project's instructions. Definitions may be amended with explicit owner approval, consistent with the source project's current rules and reminder hook. The optional reminder uses Claude's structured context output rather than claiming to lock a file.
-
-The existing Bloom `/task` remains separate. Claude Code's built-in `/tasks` manages background activity and is a different feature.
-
-Official references: [Claude skills and installation](https://code.claude.com/docs/en/skills), [Claude permissions](https://code.claude.com/docs/en/permissions), [Claude hooks](https://code.claude.com/docs/en/hooks), [Codex skills](https://learn.chatgpt.com/docs/build-skills).
+Adapted from BloomGameClient's `.claude/skills/task` workflow under the MIT license, now using the owner's Workbench task pattern. The original Bloom `/task` remains separate. Claude Code's built-in `/tasks` manages background activity and is unrelated.
