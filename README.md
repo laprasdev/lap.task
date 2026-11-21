@@ -22,7 +22,7 @@ $lap-task implement the ready task we just planned
 
 Setup resolves the registered desk project, reuses existing work where appropriate, reads the applicable rules and consumers, reconciles the target architecture, and records a task spec with real dependencies and acceptance checks. The result includes the project/task IDs and the next ready step or pending owner decision. Planning alone does not start implementation. Existing approval carries forward; required owner decisions and reviewer approvals are never fabricated.
 
-The current project needs access to its Workbench desk and CLI. The workflow uses `wb`, with a Node fallback to the Workbench checkout's `bin/wb.mjs`. The CLI honors `WORKBENCH_URL`; retain the configured desk endpoint. If the desk or project is unavailable, the agent reports that gap and may continue independent research, but does not silently create a competing task system.
+The current project needs access to its Workbench desk and CLI. The workflow uses `wb`, with a Node fallback to the Workbench checkout's `bin/wb.ts`. The CLI honors `WORKBENCH_URL`; retain the configured desk endpoint. If the desk or project is unavailable, the agent reports that gap and may continue independent research, but does not silently create a competing task system.
 
 ## Install across projects
 
